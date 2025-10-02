@@ -1,255 +1,307 @@
 <!DOCTYPE html>
-<html lang="es" class="">
+<html lang="es">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>StorySeeker Saga - Manga Explorer</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>StorySeeker Saga - Manga & Manhwa Explorer</title>
 <script src="https://cdn.tailwindcss.com"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
 <style>
-  @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
-  :root{
-    --bg: #f3f4f6;
-    --card: #ffffff;
-    --text: #1f2937;
-    --muted: #6b7280;
-    --accent-from: #4f46e5;
-    --accent-to: #7c3aed;
-    --spinner-bg: #e0e7ff;
-    --spinner-top: #6366f1;
-    --modal-bg: rgba(0,0,0,0.9);
-  }
-  .dark-root{
-    --bg: #0b1220;
-    --card: #0f1724;
-    --text: #e6eef8;
-    --muted: #9aa6bd;
-    --accent-from: #7c3aed;
-    --accent-to: #4f46e5;
-    --spinner-bg: #0b1220;
-    --spinner-top: #7c3aed;
-    --modal-bg: rgba(2,6,23,0.92);
-  }
-  body { font-family: 'Poppins', sans-serif; background-color: var(--bg); color: var(--text); }
-  .gradient-bg { background: linear-gradient(135deg, var(--accent-from) 0%, var(--accent-to) 100%); }
-  .card-hover { opacity: 0; transform: translateY(20px) scale(0.95); transition: all 0.5s cubic-bezier(0.22, 1, 0.36, 1);} 
-  .card-hover.show { opacity: 1; transform: translateY(0) scale(1);} 
-  .card-hover:hover { transform: translateY(-5px) scale(1.02); box-shadow: 0 25px 40px rgba(0,0,0,0.15);} 
-  .search-input:focus { box-shadow: 0 0 0 3px rgba(99,102,241,0.18);} 
-  .history-badge { cursor:pointer; transition:all 0.2s; }
-  .history-badge:hover { background-color:#c7d2fe; color:#1e3a8a; }
-  .loading-spinner { border:5px solid var(--spinner-bg); border-top:5px solid var(--spinner-top); border-radius:50%; width:50px; height:50px; animation:spin 1s linear infinite; margin:auto; }
-  @keyframes spin { 0%{transform:rotate(0deg);}100%{transform:rotate(360deg);} }
-  #readerModal { display:flex; align-items:center; justify-content:center; }
-  #readerModal.hidden { display:none; }
-
-  /* Card & modal background adjustments */
-  .card, .rounded-2xl, .bg-white { background-color: var(--card) !important; }
-  .text-gray-700 { color: var(--text) !important; }
-  .text-gray-500 { color: var(--muted) !important; }
-  .border-gray-300 { border-color: rgba(148,163,184,0.15) !important; }
-  .bg-indigo-100 { background-color: rgba(124,58,237,0.12) !important; }
-  .text-indigo-800 { color: #c7b3ff !important; }
-  #readerModal { background-color: var(--modal-bg); }
-
-  /* anuncios fake */
-  .ad-banner { 
-    background: linear-gradient(90deg, #6366f1, #7c3aed);
-    color: white; 
-    padding: 1rem; 
-    text-align: center; 
-    font-weight: 600; 
-    border-radius: 0.75rem;
-    margin: 1rem 0;
-  }
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+:root{
+  --bg:#f3f4f6;--card:#ffffff;--text:#1f2937;--muted:#6b7280;
+  --accent-from:#4f46e5;--accent-to:#7c3aed;--spinner-bg:#e0e7ff;
+  --spinner-top:#6366f1;
+}
+.dark-root{
+  --bg:#1a1b1e;--card:#2c2f36;--text:#dcd6f7;--muted:#b9bbbe;
+  --accent-from:#7c3aed;--accent-to:#a855f7;--spinner-bg:#202225;
+  --spinner-top:#7c3aed;
+}
+body{font-family:'Poppins',sans-serif;background-color:var(--bg);color:var(--text);margin:0;}
+.gradient-bg{background:linear-gradient(135deg,var(--accent-from) 0%,var(--accent-to) 100%);}
+.card,.rounded-2xl,.bg-white{background-color:var(--card)!important;box-shadow:0 4px 10px rgba(0,0,0,0.3);}
+input,select{background-color:var(--card);border-color:rgba(255,255,255,0.1)!important;color:var(--text);}
+input:focus,select:focus{box-shadow:0 0 0 3px rgba(124,58,237,0.5)!important;outline:none;}
+.theme-toggle{width:50px;height:26px;background-color:#5865f2;border-radius:9999px;position:relative;cursor:pointer;transition:0.3s;}
+.theme-toggle::after{content:"🌙";position:absolute;top:2px;left:2px;width:22px;height:22px;background:#fff;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:14px;transition:0.3s;}
+.dark-root .theme-toggle{background-color:#7c3aed;}
+.dark-root .theme-toggle::after{content:"☀️";transform:translateX(24px);}
+.loading-spinner{border:5px solid var(--spinner-bg);border-top:5px solid var(--spinner-top);border-radius:50%;width:50px;height:50px;animation:spin 1s linear infinite;margin:auto;}
+@keyframes spin{0%{transform:rotate(0deg);}100%{transform:rotate(360deg);}}
+.line-clamp-2{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;}
+/* Mejoras móviles */
+img{max-width:100%;height:auto;}
+button, a{word-break:break-word;}
+.no-results{padding:2rem;}
 </style>
 </head>
 <body class="min-h-screen">
-
-<!-- Header -->
-<header class="gradient-bg text-white py-8 px-4 shadow-lg">
-  <div class="container mx-auto max-w-6xl text-center">
-    <div class="flex items-center justify-between gap-4">
-      <div class="flex items-center gap-4">
-        <svg xmlns="http://www.w3.org/2000/svg" class="w-14 h-14" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/>
-        </svg>
-        <div class="text-left">
-          <h1 class="text-3xl md:text-5xl font-bold">StorySeeker Saga</h1>
-          <p class="text-base md:text-lg text-indigo-100 max-w-2xl mt-1">Explora y lee mangas desde MangaDex.</p>
-        </div>
-      </div>
-      <div class="flex items-center gap-3">
-        <button id="themeToggle" aria-label="Alternar modo oscuro" class="px-3 py-2 rounded-lg bg-white/20 hover:bg-white/30 backdrop-blur-sm text-sm">🌙 Modo</button>
-      </div>
-    </div>
-  </div>
+<header class="gradient-bg text-white py-6 px-4 shadow-lg">
+<div class="container mx-auto max-w-6xl flex justify-between items-center flex-wrap">
+<h1 class="text-3xl md:text-5xl font-bold">StorySeeker Saga</h1>
+<div id="themeToggle" class="theme-toggle mt-2 md:mt-0"></div>
+</div>
+<p class="text-indigo-100 text-center mt-2">Explora mangas y manhwas desde MangaDex y ManhwaWeb</p>
 </header>
 
-<!-- Ads -->
-<div class="container mx-auto max-w-4xl px-4">
-  <div class="ad-banner">🔥 Anuncio: ¡Descarga la app oficial de StorySeeker Saga ahora mismo!</div>
+<section class="py-6 px-4">
+<div class="container mx-auto max-w-4xl">
+<div class="card rounded-2xl shadow-xl p-6">
+<div class="relative mb-6">
+<input type="text" id="search" placeholder="Busca un manga o manhwa..." class="w-full px-4 py-3 pr-12 rounded-xl border border-gray-300 focus:outline-none">
+<svg xmlns="http://www.w3.org/2000/svg" class="absolute right-3 top-3 w-6 h-6 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-4.35-4.35m0 0A7.5 7.5 0 1110.5 3a7.5 7.5 0 016.15 13.65z"></path></svg>
 </div>
-
-<!-- Search Section -->
-<section class="py-6 px-4">
-  <div class="container mx-auto max-w-4xl">
-    <div class="card rounded-2xl shadow-xl p-6">
-      <div class="relative mb-6">
-        <input type="text" id="search" placeholder="Busca un manga..." class="w-full px-4 py-3 pr-12 rounded-xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-indigo-500 search-input">
-        <svg xmlns="http://www.w3.org/2000/svg" class="absolute right-3 top-3 w-6 h-6 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-4.35-4.35m0 0A7.5 7.5 0 1110.5 3a7.5 7.5 0 016.15 13.65z"/>
-        </svg>
-      </div>
-
-      <!-- Categorías -->
-      <div class="flex flex-wrap gap-2 mb-4">
-        <button class="category-btn bg-indigo-100 text-indigo-800 px-3 py-1 rounded-full" data-cat="Acción">Acción</button>
-        <button class="category-btn bg-indigo-100 text-indigo-800 px-3 py-1 rounded-full" data-cat="Amor">Amor</button>
-        <button class="category-btn bg-indigo-100 text-indigo-800 px-3 py-1 rounded-full" data-cat="+18">+18</button>
-        <button class="category-btn bg-indigo-100 text-indigo-800 px-3 py-1 rounded-full" data-cat="Comedia">Comedia</button>
-        <button class="category-btn bg-indigo-100 text-indigo-800 px-3 py-1 rounded-full" data-cat="Fantasía">Fantasía</button>
-      </div>
-
-      <div>
-        <h3 class="font-semibold text-gray-700 mb-2">Historial de búsquedas:</h3>
-        <div id="history" class="flex flex-wrap gap-2"></div>
-      </div>
-    </div>
-  </div>
+<div>
+<h3 class="font-semibold text-gray-700 mb-2">Historial de búsquedas:</h3>
+<div id="history" class="flex flex-wrap gap-2"></div>
+</div>
+</div>
+</div>
 </section>
 
-<!-- Results -->
 <section class="py-6 px-4">
-  <div class="container mx-auto max-w-6xl">
-    <div id="results" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
-      <div class="no-results p-8 text-center col-span-full">
-        <h3 class="text-lg font-semibold text-gray-700 mb-2">Comienza tu búsqueda</h3>
-        <p class="text-gray-500 text-sm">Escribe un título o selecciona una categoría</p>
-      </div>
-    </div>
-  </div>
+<div class="container mx-auto max-w-6xl">
+<div id="results" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
+<div class="no-results text-center col-span-full">
+<h3 class="text-lg font-semibold text-gray-700 mb-2">Sugerencias</h3>
+<p class="text-gray-500 text-sm">Aquí verás mangas recientes o según tu historial</p>
+</div>
+</div>
+</div>
 </section>
 
-<!-- Modal lector -->
-<div id="readerModal" class="fixed inset-0 hidden items-center justify-center z-50 overflow-auto">
-  <div class="bg-white dark:bg-[#0f1724] rounded-none md:rounded-xl w-full md:max-w-5xl h-full md:h-auto relative flex flex-col">
-    <button id="closeReader" class="absolute top-3 right-3 text-gray-700 dark:text-gray-200 text-2xl font-bold hover:text-indigo-600 transition-colors">&times;</button>
-    <div class="p-4 flex flex-col items-center flex-grow overflow-y-auto">
-      <select id="chapterSelect" class="mb-4 px-3 py-2 rounded-lg border border-gray-300 w-full md:w-1/2"></select>
-      <button id="downloadBtn" class="mb-4 bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg w-full md:w-auto">Descargar Capítulo</button>
-      <div id="readerContent" class="flex flex-col items-center w-full"></div>
-    </div>
-  </div>
+<div id="readerModal" class="fixed inset-0 hidden items-center justify-center z-50 overflow-auto bg-black/70 p-4">
+<div class="bg-white dark:bg-gray-800 rounded-xl w-full max-w-3xl h-full md:h-auto relative flex flex-col">
+<button id="closeReader" class="absolute top-3 right-3 text-gray-700 text-2xl font-bold hover:text-indigo-600">×</button>
+<div class="p-4 flex flex-col items-center flex-grow overflow-y-auto w-full">
+<select id="chapterSelect" class="mb-4 px-3 py-2 rounded-lg border border-gray-300 w-full md:w-1/2"></select>
+<button id="downloadBtn" class="mb-4 bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg w-full md:w-auto">Descargar Capítulo</button>
+<div id="readerContent" class="flex flex-col items-center w-full"></div>
+</div>
+</div>
 </div>
 
 <script>
-/* ============ TEMA OSCURO ============ */
-const htmlEl=document.documentElement;
-function setTheme(isDark){
-  if(isDark){htmlEl.classList.add('dark-root');localStorage.setItem('ss-theme','dark');document.getElementById('themeToggle').textContent='☀️ Claro';}
-  else{htmlEl.classList.remove('dark-root');localStorage.setItem('ss-theme','light');document.getElementById('themeToggle').textContent='🌙 Modo';}}
-const saved=localStorage.getItem('ss-theme');
-if(saved==='dark')setTheme(true);
-else if(saved==='light')setTheme(false);
-else if(window.matchMedia('(prefers-color-scheme: dark)').matches)setTheme(true);
+// 🌙 Modo oscuro
+const htmlEl = document.documentElement;
+function setTheme(isDark) {
+    if (isDark) htmlEl.classList.add('dark-root');
+    else htmlEl.classList.remove('dark-root');
+    localStorage.setItem('ss-theme', isDark ? 'dark' : 'light');
+}
+const saved = localStorage.getItem('ss-theme');
+if(saved === 'dark') setTheme(true);
+else if(saved === 'light') setTheme(false);
+else if(window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) setTheme(true);
 else setTheme(false);
-document.getElementById('themeToggle').addEventListener('click',()=>{setTheme(!htmlEl.classList.contains('dark-root'));});
 
-/* ============ BÚSQUEDA ============ */
-const searchInput=document.getElementById('search');
-const resultsContainer=document.getElementById('results');
-const historyContainer=document.getElementById('history');
-const readerModal=document.getElementById('readerModal');
-const readerContent=document.getElementById('readerContent');
-const closeReader=document.getElementById('closeReader');
-const chapterSelect=document.getElementById('chapterSelect');
-const downloadBtn=document.getElementById('downloadBtn');
-let searchHistory=[]; let currentMangaId=null; let currentChapters=[]; let currentImages=[];
-
-function debounce(func,wait){let t;return(...args)=>{clearTimeout(t);t=setTimeout(()=>func.apply(this,args),wait);};}
-function updateHistory(term){if(!term)return;if(!searchHistory.includes(term))searchHistory.unshift(term);if(searchHistory.length>5)searchHistory.pop();renderHistory();}
-function renderHistory(){historyContainer.innerHTML='';searchHistory.forEach(term=>{const b=document.createElement('span');b.textContent=term;b.className='history-badge bg-indigo-100 text-indigo-800 px-3 py-1 rounded-full text-xs md:text-sm';b.onclick=()=>{searchInput.value=term;debouncedSearch();};historyContainer.appendChild(b);});}
-function showLoading(text="Buscando..."){resultsContainer.innerHTML=`<div class="p-8 text-center col-span-full"><div class="loading-spinner mb-4"></div><p class="text-gray-700">${text}</p></div>`;}
-
-/* Consulta MangaDex */
-async function searchManga(query){
-  showLoading();
-  try{
-    const res=await fetch(`https://api.mangadex.org/manga?title=${encodeURIComponent(query)}&limit=12&includes[]=cover_art`);
-    const data=await res.json();
-    if(!data.data||data.data.length===0){resultsContainer.innerHTML='<div class="p-8 text-center col-span-full">No se encontraron mangas.</div>';return;}
-    updateHistory(query);
-    resultsContainer.innerHTML='';
-    data.data.forEach((item,index)=>{
-      const div=document.createElement('div');div.className='bg-white rounded-xl overflow-hidden shadow-md card-hover flex flex-col';
-      setTimeout(()=>{div.classList.add('show');},index*100);
-      let img='https://via.placeholder.com/300x450?text=Sin+Portada';
-      const cover=item.relationships.find(r=>r.type==="cover_art");
-      if(cover) img=`https://uploads.mangadex.org/covers/${item.id}/${cover.attributes.fileName}.256.jpg`;
-      const title=(item.attributes.title.en)?item.attributes.title.en:Object.values(item.attributes.title)[0]||'Sin título';
-      div.innerHTML=`<img src="${img}" class="w-full h-48 object-cover md:h-64">
-        <div class="p-3 flex flex-col flex-grow">
-          <h3 class="text-sm md:text-base font-semibold text-gray-800 mb-1 line-clamp-2">${title}</h3>
-          <span class="text-xs text-gray-500 mb-2">Categoría: ${["Acción","Amor","+18","Comedia","Fantasía"][Math.floor(Math.random()*5)]}</span>
-          <div class="mt-auto flex flex-col sm:flex-row gap-2">
-            <button class="bg-indigo-600 hover:bg-indigo-700 text-white px-2 py-1 rounded-lg text-xs md:text-sm" onclick="openReader('${item.id}')">Leer</button>
-            <a href="${img}" download class="bg-green-600 hover:bg-green-700 text-white px-2 py-1 rounded-lg text-xs md:text-sm text-center">Portada</a>
-          </div>
-        </div>`;
-      resultsContainer.appendChild(div);
-    });
-  }catch(e){console.error(e);resultsContainer.innerHTML='<div class="p-8 text-center col-span-full">Error al buscar mangas.</div>';} 
-}
-
-/* Capítulos */
-async function getAllChapters(mangaId){
-  try{
-    const res=await fetch(`https://api.mangadex.org/manga/${mangaId}/feed?translatedLanguage[]=es&translatedLanguage[]=en&order[chapter]=asc&limit=500`);
-    const data=await res.json();
-    if(!data.data||data.data.length===0)return[];
-    return data.data.map(chap=>({id:chap.id,title:chap.attributes.title||`Capítulo ${chap.attributes.chapter||''}`,chapter:chap.attributes.chapter,volume:chap.attributes.volume}));
-  }catch(e){console.error("Error al obtener capítulos:",e);return[];}
-}
-async function openReader(mangaId){
-  currentMangaId=mangaId;readerContent.innerHTML='<div class="loading-spinner mb-4"></div>';
-  readerModal.classList.remove('hidden');
-  chapterSelect.innerHTML='';
-  currentChapters=await getAllChapters(mangaId);
-  if(currentChapters.length===0){readerContent.innerHTML='<p class="text-gray-700">No se encontraron capítulos.</p>';return;}
-  currentChapters.forEach((chap,index)=>{const opt=document.createElement('option');opt.value=index;opt.textContent=chap.title;chapterSelect.appendChild(opt);});
-  loadChapter(0);
-}
-async function loadChapter(index){
-  const chap=currentChapters[index];if(!chap)return;
-  readerContent.innerHTML='<div class="loading-spinner mb-4"></div>';currentImages=[];
-  try{
-    const res=await fetch(`https://api.mangadex.org/at-home/server/${chap.id}`);
-    const data=await res.json();
-    const baseUrl=data.baseUrl;const hash=data.chapter.hash;
-    currentImages=data.chapter.data.map(p=>`${baseUrl}/data/${hash}/${p}`);
-    renderChapterImages();
-  }catch(e){console.error("Error al cargar capítulo:",e);readerContent.innerHTML='<p class="text-gray-700">Error al cargar el capítulo.</p>'; }
-}
-function renderChapterImages(){readerContent.innerHTML='';currentImages.forEach(img=>{const el=document.createElement('img');el.src=img;el.className="max-w-full h-auto mb-4 rounded-lg";readerContent.appendChild(el);});}
-downloadBtn.onclick=async ()=>{if(currentImages.length===0)return;const zip=new JSZip();const folder=zip.folder('Manga_Capitulo');for(let i=0;i<currentImages.length;i++){const imgData=await fetch(currentImages[i]).then(res=>res.blob());folder.file(`page_${i+1}.jpg`,imgData);} zip.generateAsync({type:"blob"}).then(content=>{saveAs(content,"Capitulo.zip");});};
-chapterSelect.onchange=(e)=>{loadChapter(e.target.value);} 
-closeReader.onclick=()=>{readerModal.classList.add('hidden');readerContent.innerHTML='';currentImages=[];}
-
-/* Debounce búsqueda */
-const debouncedSearch=debounce(()=>{const q=searchInput.value.trim();if(!q)return;searchManga(q);},500);
-searchInput.addEventListener('input',debouncedSearch);
-searchInput.addEventListener('keypress',e=>{if(e.key==='Enter')debouncedSearch();});
-
-/* Categorías */
-document.querySelectorAll(".category-btn").forEach(btn=>{
-  btn.addEventListener("click",()=>{
-    const cat=btn.dataset.cat;
-    searchManga(cat);
-  });
+document.getElementById('themeToggle').addEventListener('click', () => {
+    setTheme(!htmlEl.classList.contains('dark-root'));
 });
+
+// Variables
+const searchInput = document.getElementById('search');
+const resultsContainer = document.getElementById('results');
+const historyContainer = document.getElementById('history');
+const readerModal = document.getElementById('readerModal');
+const readerContent = document.getElementById('readerContent');
+const closeReader = document.getElementById('closeReader');
+const chapterSelect = document.getElementById('chapterSelect');
+const downloadBtn = document.getElementById('downloadBtn');
+let searchHistory = [], currentMangaId = null, currentChapters = [], currentImages = [];
+
+// Utilidades
+function debounce(func, wait) { let t; return (...args) => { clearTimeout(t); t = setTimeout(() => func.apply(this, args), wait); }; }
+function updateHistory(term) { 
+    if (!term) return;
+    if (!searchHistory.includes(term)) searchHistory.unshift(term);
+    if (searchHistory.length > 5) searchHistory.pop();
+    renderHistory();
+}
+function renderHistory() {
+    historyContainer.innerHTML = '';
+    searchHistory.forEach(term => {
+        const b = document.createElement('span');
+        b.textContent = term;
+        b.className = 'history-badge bg-indigo-100 text-indigo-800 px-3 py-1 rounded-full text-xs md:text-sm cursor-pointer';
+        b.onclick = () => { searchInput.value = term; debouncedSearch(); };
+        historyContainer.appendChild(b);
+    });
+}
+function showLoading(text = "Cargando...") {
+    resultsContainer.innerHTML = `<div class="p-8 text-center col-span-full"><div class="loading-spinner mb-4"></div><p class="text-gray-700">${text}</p></div>`;
+}
+
+// Búsqueda de mangas
+async function searchManga(query){
+    if(!query) return;
+    showLoading();
+    try {
+        const res = await fetch(`https://api.mangadex.org/manga?title=${encodeURIComponent(query)}&limit=24&includes[]=cover_art`);
+        const data = await res.json();
+        renderMangaDexResults(data.data);
+    } catch(e) {
+        console.error(e);
+        resultsContainer.innerHTML = '<p class="text-gray-700 col-span-full text-center">Error al buscar.</p>';
+    }
+    updateHistory(query);
+}
+const debouncedSearch = debounce(() => { searchManga(searchInput.value.trim()); }, 600);
+searchInput.addEventListener('input', debouncedSearch);
+
+// Render MangaDex
+function renderMangaDexResults(items){
+    resultsContainer.innerHTML = '';
+    if(!items || items.length === 0){
+        resultsContainer.innerHTML = '<p class="text-gray-700 col-span-full text-center">No se encontraron resultados.</p>';
+        return;
+    }
+    items.forEach((item, index) => {
+        const div = document.createElement('div');
+        div.className = 'bg-white rounded-xl overflow-hidden shadow-md flex flex-col';
+        let img = 'https://via.placeholder.com/300x450?text=Sin+Portada';
+        const cover = item.relationships.find(r => r.type === "cover_art");
+        if(cover) img = `https://uploads.mangadex.org/covers/${item.id}/${cover.attributes.fileName}.256.jpg`;
+        const title = item.attributes.title.en || Object.values(item.attributes.title)[0] || 'Sin título';
+        div.innerHTML = `
+            <img src="${img}" class="w-full h-48 object-cover md:h-64">
+            <div class="p-3 flex flex-col flex-grow">
+                <h3 class="text-sm md:text-base font-semibold text-gray-800 mb-1 line-clamp-2">${title}</h3>
+                <div class="mt-auto flex flex-col sm:flex-row gap-2">
+                    <button class="bg-indigo-600 hover:bg-indigo-700 text-white px-2 py-1 rounded-lg text-xs md:text-sm" onclick="openReader('${item.id}')">Leer</button>
+                    <a href="${img}" download class="bg-green-600 hover:bg-green-700 text-white px-2 py-1 rounded-lg text-xs md:text-sm text-center">Portada</a>
+                </div>
+            </div>`;
+        resultsContainer.appendChild(div);
+    });
+}
+
+// Capítulos y lector
+async function getAllChapters(mangaId){
+    try{
+        const res = await fetch(`https://api.mangadex.org/manga/${mangaId}/feed?translatedLanguage[]=es&translatedLanguage[]=en&order[chapter]=asc&limit=500`);
+        const data = await res.json();
+        if(!data.data || data.data.length === 0) return [];
+        return data.data.map(chap => ({
+            id: chap.id,
+            title: chap.attributes.title || `Capítulo ${chap.attributes.chapter || ''}`,
+            chapter: chap.attributes.chapter,
+            volume: chap.attributes.volume
+        }));
+    } catch(e) { console.error(e); return []; }
+}
+
+async function openReader(mangaId){
+    currentMangaId = mangaId;
+    readerContent.innerHTML = '<div class="loading-spinner mb-4"></div>';
+    readerModal.classList.remove('hidden');
+    chapterSelect.innerHTML = '';
+    currentChapters = await getAllChapters(mangaId);
+    if(currentChapters.length === 0){
+        readerContent.innerHTML = '<p class="text-gray-700">No se encontraron capítulos.</p>';
+        return;
+    }
+    currentChapters.forEach((chap, index) => {
+        const opt = document.createElement('option');
+        opt.value = index;
+        opt.textContent = chap.title;
+        chapterSelect.appendChild(opt);
+    });
+    loadChapter(0);
+}
+
+async function loadChapter(index){
+    const chap = currentChapters[index]; 
+    if(!chap) return;
+    readerContent.innerHTML = '<div class="loading-spinner mb-4"></div>';
+    currentImages = [];
+    try{
+        const res = await fetch(`https://api.mangadex.org/at-home/server/${chap.id}`);
+        const data = await res.json();
+        const baseUrl = data.baseUrl, hash = data.chapter.hash;
+        currentImages = data.chapter.data.map(p => `${baseUrl}/data/${hash}/${p}`);
+        renderChapterImages();
+    } catch(e){
+        console.error(e);
+        readerContent.innerHTML = '<p class="text-gray-700">Error cargando capítulo.</p>';
+    }
+}
+
+function renderChapterImages(){
+    readerContent.innerHTML = '';
+    currentImages.forEach(img => {
+        const i = document.createElement('img');
+        i.src = img;
+        i.className = 'mb-4 w-full';
+        readerContent.appendChild(i);
+    });
+}
+
+// Descargar capítulo
+downloadBtn.addEventListener('click', async () => {
+    if(!currentImages || currentImages.length === 0) return alert('No hay imágenes para descargar.');
+    try {
+        const zip = new JSZip();
+        for (let i = 0; i < currentImages.length; i++) {
+            const res = await fetch(currentImages[i]);
+            const blob = await res.blob();
+            zip.file(`page_${i+1}.jpg`, blob);
+        }
+        const content = await zip.generateAsync({ type: "blob" });
+        saveAs(content, `${currentChapters[chapterSelect.value].title || 'Capitulo'}.zip`);
+    } catch (e) {
+        console.error('Error al descargar el capítulo:', e);
+        alert('Ocurrió un error al descargar el capítulo.');
+    }
+});
+
+// Cambiar capítulo
+chapterSelect.addEventListener('change', () => { loadChapter(chapterSelect.value); });
+
+// Cerrar lector
+closeReader.addEventListener('click', () => {
+    readerModal.classList.add('hidden');
+    readerContent.innerHTML = '';
+    currentImages = [];
+    currentChapters = [];
+    currentMangaId = null;
+});
+
+// Descargar todos los capítulos
+async function downloadAllChapters() {
+    if (!currentChapters || currentChapters.length === 0) return alert('No hay capítulos para descargar.');
+    try {
+        const zip = new JSZip();
+        for (let i = 0; i < currentChapters.length; i++) {
+            const chap = currentChapters[i];
+            const resChapter = await fetch(`https://api.mangadex.org/at-home/server/${chap.id}`);
+            const data = await resChapter.json();
+            const baseUrl = data.baseUrl;
+            const hash = data.chapter.hash;
+            const images = data.chapter.data.map(p => `${baseUrl}/data/${hash}/${p}`);
+            const folder = zip.folder(chap.title || `Capitulo_${i+1}`);
+            for (let j = 0; j < images.length; j++) {
+                const imgRes = await fetch(images[j]);
+                const imgBlob = await imgRes.blob();
+                folder.file(`page_${j+1}.jpg`, imgBlob);
+            }
+        }
+        const content = await zip.generateAsync({ type: "blob" });
+        saveAs(content, `Manga_${currentMangaId || 'Descarga'}.zip`);
+    } catch (e) {
+        console.error('Error al descargar todos los capítulos:', e);
+        alert('Ocurrió un error al descargar todos los capítulos.');
+    }
+}
+
+// Botón "Descargar Todo"
+const downloadAllBtn = document.createElement('button');
+downloadAllBtn.textContent = 'Descargar Todo';
+downloadAllBtn.className = 'mb-4 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg w-full md:w-auto';
+downloadAllBtn.onclick = downloadAllChapters;
+document.querySelector('#readerModal .p-4').insertBefore(downloadAllBtn, readerContent);
 </script>
 </body>
-    </html>
-    
+</html>
